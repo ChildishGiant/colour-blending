@@ -22,18 +22,22 @@ window.onload = function () {
   document.getElementById("remove-colour").onclick = removeColour;
   document.getElementById("blend-mode").onchange = blendModeChanged;
 
-  addColour("#000000");
-  addColour("#ffffff");
+  addColour();
+  addColour();
+  addColour();
 
 }
 
 let addColour = function (colour) {
 
+  // If no colour is passed, generate a random one
+  colour = typeof colour == "string" ? colour : getRandomColor();
+
   let id = "colour-picker-"+colours.length;
   let picker = document.createElement("input");
   picker.type = "color";
   picker.dataset.colour = colours.length;
-  picker.value = typeof colour == "string" ? colour : getRandomColor();
+  picker.value = colour;
 
   picker.addEventListener("input", colourChanged);
 
@@ -53,6 +57,7 @@ let addColour = function (colour) {
     let row = table.rows[index];
 
     // If not on the last row add a cell
+    // Adding new collumn by adding a cell to the end of each row
     if (index != colours.length ) {
       let cell = row.insertCell();
 
@@ -62,11 +67,14 @@ let addColour = function (colour) {
         continue
       } else {
         let overlay = document.createElement("colour-overlay");
+        // Set the colour
+        overlay.setAttribute("colour-1", colour);
+        overlay.setAttribute("colour-2", colours[index-1]);
         cell.appendChild(overlay)
       }
 
     }
-    // On last row, fill out all the cells
+    // This is the new row and needs a colour picker and all the other cells filled
     else {
       for (let i = 0; i <= colours.length; i++) {
         let cell = row.insertCell();
@@ -77,6 +85,8 @@ let addColour = function (colour) {
         } else {
           // Otherwise add a colour overlay
           let overlay = document.createElement("colour-overlay");
+          overlay.setAttribute("colour-1", colours[i-1]);
+          overlay.setAttribute("colour-2", colour);
           cell.appendChild(overlay)
         }
       }
@@ -104,6 +114,7 @@ let removeColour = function () {
 
 window.colourChanged = function (event) {
 
+  // ID of the colour picker
   let id = this.dataset.colour;
 
   // Update the other picker
@@ -113,22 +124,22 @@ window.colourChanged = function (event) {
 
   // let toUpdate = document.querySelectorAll("colour-overlay");
 
-  for (index in Array.from(table.rows)) {
+  for (rowNumber in Array.from(table.rows)) {
 
-    let row = table.rows[index];
+    let row = table.rows[rowNumber];
 
-    for (var cell in Array.from(row.cells)) {
+    for (var columnNumber in Array.from(row.cells)) {
 
-      if (cell-1 == id) {
-        let overlay = row.cells[cell].querySelector("colour-overlay");
+      if (columnNumber-1 == id) {
+        let overlay = row.cells[columnNumber].querySelector("colour-overlay");
 
         if (overlay){
           overlay.setAttribute("colour-1", this.value);
         }
       }
 
-      if (index-1 == id) {
-        let overlay = row.cells[cell].querySelector("colour-overlay");
+      if (rowNumber-1 == id) {
+        let overlay = row.cells[columnNumber].querySelector("colour-overlay");
 
         if (overlay){
           overlay.setAttribute("colour-2", this.value);
@@ -141,7 +152,6 @@ window.colourChanged = function (event) {
 window.blendModeChanged = function (event) {
 
   document.querySelectorAll("colour-overlay").forEach( el => {
-    // console.log(el)
     el.setAttribute("blend-mode", this.value);
   })
 }
@@ -174,9 +184,11 @@ class Overlay extends HTMLElement {
 
     const colour1elem = document.createElement('div');
     colour1elem.classList.add("colour-1");
+    colour1elem.style.backgroundColor = colour1;
 
     const colour2elem = document.createElement('div');
     colour2elem.classList.add("colour-2");
+    colour2elem.style.backgroundColor = colour2;
 
     shadow.appendChild(colour1elem);
     colour1elem.appendChild(colour2elem);

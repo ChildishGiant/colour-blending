@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/ChildishGiant/template#readme",
   "devDependencies": {
-    "ejs": "^3.1.6",
     "esbuild": "^0.12.19",
     "esbuild-plugin-sass": "^0.6.0",
     "esbuild-sass-plugin": "^1.4.13",

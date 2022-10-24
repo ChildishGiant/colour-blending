@@ -17,15 +17,17 @@
     document.getElementById("add-colour").onclick = addColour;
     document.getElementById("remove-colour").onclick = removeColour;
     document.getElementById("blend-mode").onchange = blendModeChanged;
-    addColour("#000000");
-    addColour("#ffffff");
+    addColour();
+    addColour();
+    addColour();
   };
   var addColour = function(colour) {
+    colour = typeof colour == "string" ? colour : getRandomColor();
     let id = "colour-picker-" + colours.length;
     let picker = document.createElement("input");
     picker.type = "color";
     picker.dataset.colour = colours.length;
-    picker.value = typeof colour == "string" ? colour : getRandomColor();
+    picker.value = colour;
     picker.addEventListener("input", colourChanged);
     let clone = picker.cloneNode(true);
     clone.addEventListener("input", colourChanged);
@@ -40,6 +42,8 @@
           continue;
         } else {
           let overlay = document.createElement("colour-overlay");
+          overlay.setAttribute("colour-1", colour);
+          overlay.setAttribute("colour-2", colours[index - 1]);
           cell.appendChild(overlay);
         }
       } else {
@@ -49,6 +53,8 @@
             cell.appendChild(clone);
           } else {
             let overlay = document.createElement("colour-overlay");
+            overlay.setAttribute("colour-1", colours[i - 1]);
+            overlay.setAttribute("colour-2", colour);
             cell.appendChild(overlay);
           }
         }
@@ -72,17 +78,17 @@
     picker.forEach((el) => {
       el.value = this.value;
     });
-    for (index in Array.from(table.rows)) {
-      let row = table.rows[index];
-      for (var cell in Array.from(row.cells)) {
-        if (cell - 1 == id) {
-          let overlay = row.cells[cell].querySelector("colour-overlay");
+    for (rowNumber in Array.from(table.rows)) {
+      let row = table.rows[rowNumber];
+      for (var columnNumber in Array.from(row.cells)) {
+        if (columnNumber - 1 == id) {
+          let overlay = row.cells[columnNumber].querySelector("colour-overlay");
           if (overlay) {
             overlay.setAttribute("colour-1", this.value);
           }
         }
-        if (index - 1 == id) {
-          let overlay = row.cells[cell].querySelector("colour-overlay");
+        if (rowNumber - 1 == id) {
+          let overlay = row.cells[columnNumber].querySelector("colour-overlay");
           if (overlay) {
             overlay.setAttribute("colour-2", this.value);
           }
@@ -124,6 +130,8 @@
       shadow.appendChild(style);
     }
     connectedCallback() {
+      console.log("added");
+      console.log(this);
     }
     disconnectedCallback() {
     }
